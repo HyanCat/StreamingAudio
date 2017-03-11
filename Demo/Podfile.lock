@@ -1,0 +1,23 @@
+PODS:
+  - iCheckbox (2.0.0)
+  - StreamingAudio (0.1.0):
+    - StreamingKit
+  - StreamingKit (0.1.29)
+
+DEPENDENCIES:
+  - iCheckbox
+  - StreamingAudio (from `../`)
+  - StreamingKit
+
+EXTERNAL SOURCES:
+  StreamingAudio:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  iCheckbox: ab057f36b02731a32e6a36fb8050d75ccedc5bbc
+  StreamingAudio: 87dfed154a7aa85b064716b8a7148c98e8a771d9
+  StreamingKit: c329785aaef3ac142d4ae388345bfe1ed23cfd45
+
+PODFILE CHECKSUM: 9eadb445298461f9cf73def626cdbe73f5b753f3
+
+COCOAPODS: 1.2.0
