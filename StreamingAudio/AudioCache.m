@@ -140,7 +140,7 @@ NS_ASSUME_NONNULL_END
 - (void)__loadLocalCache
 {
     NSArray <NSURL *> *files = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:__audioDirectory() includingPropertiesForKeys:nil options:NSEnumerationConcurrent error:nil];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension = '%@'", kAudioCacheFileExtension];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension = %@", kAudioCacheFileExtension];
     NSArray <NSURL *> *audioFiles = [files filteredArrayUsingPredicate:predicate];
     for (NSURL *file in audioFiles) {
         NSString *fileName;
