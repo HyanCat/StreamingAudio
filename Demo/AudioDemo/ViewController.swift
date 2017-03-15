@@ -34,6 +34,7 @@ class ViewController: UIViewController, iCheckboxDelegate, STKAudioPlayerDelegat
 
         musicPlayButton.setTitle("Play", for: .normal)
 
+        musicPlayer.enableCache = true
         musicPlayer.appendFrequencyOutputName("111") { (rawPointer, count) in
 //            let fs = Array(UnsafeBufferPointer(start: rawPointer, count: Int(count)))
 //            print(fs)
@@ -45,7 +46,12 @@ class ViewController: UIViewController, iCheckboxDelegate, STKAudioPlayerDelegat
     }
 
     @IBAction func musicPlayButtonTouched(_ sender: UIButton) {
-        musicPlayer.play(Res.musics.last!.url)
+        sender.isSelected = !sender.isSelected
+        if sender.isSelected {
+            musicPlayer.play(Res.musics.last!.url)
+        } else {
+            musicPlayer.stop()
+        }
     }
 
     @IBAction func musicSliderValueChanged(_ sender: UISlider) {

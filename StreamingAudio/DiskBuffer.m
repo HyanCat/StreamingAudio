@@ -42,14 +42,15 @@
 
 - (NSString *)__localFilePath
 {
-//    NSString *document = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-    NSString *directory = [NSString stringWithFormat:@"%@/audios", NSTemporaryDirectory()];
-    NSString *file = [NSString stringWithFormat:@"%@/%d", directory, (int)[NSDate date].timeIntervalSince1970];
-    NSLog(@"file: %@", file);
-    [[NSFileManager defaultManager] createDirectoryAtPath:directory withIntermediateDirectories:YES attributes:nil error:nil];
-    [[NSFileManager defaultManager] createFileAtPath:file contents:nil attributes:nil];
+    NSURL *directory = [[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES] URLByAppendingPathComponent:@"buffers" isDirectory:YES];
+    NSString *fileName = [NSString stringWithFormat:@"%d", (int)[NSDate date].timeIntervalSince1970];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:directory.path]) {
+        [[NSFileManager defaultManager] createDirectoryAtURL:directory withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+    NSURL *fileURL = [directory URLByAppendingPathComponent:fileName];
+    [[NSFileManager defaultManager] createFileAtPath:fileURL.path contents:nil attributes:nil];
 
-    return file;
+    return fileURL.path;
 }
 
 @end

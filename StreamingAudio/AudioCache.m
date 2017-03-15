@@ -7,8 +7,11 @@
 //
 
 #import "AudioCache.h"
+#import <CommonCrypto/CommonDigest.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+NSString *const kAudioCacheFileExtension = @"acf";
 
 @interface CacheTask : NSObject
 @property (nonatomic, copy) NSURL *url;
@@ -35,7 +38,10 @@ NS_ASSUME_NONNULL_END
 
 @property (nonatomic, strong) NSMutableArray <CacheTask *> *cacheQueue;
 
-@property (nonatomic, strong) NSMutableDictionary <NSURL *, AudioCacheUnit *> *cachedAudios;
+/**
+ * Cached audio dictionary, the key is filename (which is md5 of url).
+ */
+@property (nonatomic, strong) NSMutableDictionary <NSString *, AudioCacheUnit *> *cachedAudios;
 
 @end
 
@@ -57,9 +63,11 @@ NS_ASSUME_NONNULL_END
     if (self) {
         _worker = [[NSThread alloc] initWithTarget:self selector:@selector(__livingProcess) object:nil];
         _cacheQueue = [NSMutableArray array];
-        _cachedAudios = [NSMutableDictionary dictionary];
         _queueLock = [[NSLock alloc] init];
         _cacheLock = [[NSLock alloc] init];
+
+        _cachedAudios = [NSMutableDictionary dictionary];
+        [self __loadLocalCache];
     }
     return self;
 }
@@ -87,7 +95,8 @@ NS_ASSUME_NONNULL_END
 - (AudioCacheUnit *)cachedAudioWithURL:(NSURL *)url
 {
     if (url) {
-        return [_cachedAudios objectForKey:url];
+        NSString *fileName = [self __fileNameMD5:url];
+        return [_cachedAudios objectForKey:fileName];
     }
     return nil;
 }
@@ -103,9 +112,10 @@ NS_ASSUME_NONNULL_END
     [self.cacheQueue removeObjectAtIndex:index];
     [_queueLock unlock];
 
-    if ([_cachedAudios objectForKey:url]) {
+    NSString *fileName = [self __fileNameMD5:url];
+    if ([_cachedAudios objectForKey:fileName]) {
         [_cacheLock lock];
-        [_cachedAudios removeObjectForKey:url];
+        [_cachedAudios removeObjectForKey:fileName];
         [_cacheLock unlock];
     }
 }
@@ -127,6 +137,21 @@ NS_ASSUME_NONNULL_END
     } while (true);
 }
 
+- (void)__loadLocalCache
+{
+    NSArray <NSURL *> *files = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:__audioDirectory() includingPropertiesForKeys:nil options:NSEnumerationConcurrent error:nil];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension = '%@'", kAudioCacheFileExtension];
+    NSArray <NSURL *> *audioFiles = [files filteredArrayUsingPredicate:predicate];
+    for (NSURL *file in audioFiles) {
+        NSString *fileName;
+        [file getResourceValue:&fileName forKey:NSURLNameKey error:nil];
+        AudioCacheUnit *unit = [[AudioCacheUnit alloc] init];
+        unit.location = file;
+        [_cachedAudios setObject:unit forKey:fileName];
+    }
+    __audioDirectory();
+}
+
 - (BOOL)__cacheTask:(CacheTask *)task
 {
     NSURLSession *session = [NSURLSession sharedSession];
@@ -134,10 +159,15 @@ NS_ASSUME_NONNULL_END
 
     [[session downloadTaskWithURL:task.url completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (task.completion) {
+
+            NSString *fileName = [self __fileNameMD5:task.url];
+            NSURL *newLocation = [self __moveTempFile:fileName fromLocation:location];
+
             AudioCacheUnit *unit = [[AudioCacheUnit alloc] init];
-            unit.location = location;
+            unit.url = task.url;
+            unit.location = newLocation;
             [_cacheLock lock];
-            [_cachedAudios setObject:unit forKey:task.url];
+            [_cachedAudios setObject:unit forKey:fileName];
             [_cacheLock unlock];
             task.completion(unit);
         }
@@ -145,6 +175,45 @@ NS_ASSUME_NONNULL_END
     }] resume];
     dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 60*NSEC_PER_SEC));
     return YES;
+}
+
+- (NSURL *)__moveTempFile:(NSString *)fileName fromLocation:(NSURL *)location
+{
+    // Move temp file to new location.
+    NSURL *newLocation = [__audioDirectory() URLByAppendingPathComponent:fileName];
+    NSError *error = nil;
+    [[NSFileManager defaultManager] moveItemAtURL:location toURL:newLocation error:&error];
+    if (error) {
+        // If moving failed, use the original location instead.
+        newLocation = location;
+    }
+    return newLocation;
+}
+
+- (NSString *)__fileNameMD5:(NSURL *)url
+{
+    const char *cStr = [url.absoluteString UTF8String];
+    unsigned char digest[CC_MD5_DIGEST_LENGTH];
+
+    CC_MD5(cStr, (CC_LONG)strlen(cStr), digest);
+
+    NSMutableString *result = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH * 2];
+    for (int i = 0; i < CC_MD5_DIGEST_LENGTH; i++) {
+        [result appendFormat:@"%02X", digest[i]];
+    }
+
+    [result appendFormat:@".%@", kAudioCacheFileExtension];
+    return result.copy;
+}
+
+static NSURL* __audioDirectory()
+{
+    NSURL *tempDirectory = [NSURL fileURLWithPath:NSTemporaryDirectory()];
+    NSURL *audioDirectory = [tempDirectory URLByAppendingPathComponent:@"audios" isDirectory:YES];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:audioDirectory.path isDirectory:nil]) {
+        [[NSFileManager defaultManager] createDirectoryAtURL:audioDirectory withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+    return audioDirectory;
 }
 
 @end

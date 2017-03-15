@@ -11,10 +11,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface DiskBufferingDataSource : STKAutoRecoveringHTTPDataSource
+@interface DiskBufferingDataSource : STKDataSourceWrapper
 
-@property (nonatomic, assign) BOOL enabled;
+@property (nonatomic, assign) BOOL enabledDiskBuffer;
 @property (nonatomic, strong, readonly) DiskBuffer *diskBuffer;
+
+@property (nonatomic, assign) BOOL enabledCache;
+@property (nonatomic, copy, readonly) NSURL *url;
+@property (nonatomic, copy, readonly) NSURL *localURL;
+@property (nonatomic, strong, readonly) STKLocalFileDataSource *localDataSource;
+@property (nonatomic, strong, readonly) STKHTTPDataSource *httpDataSource;
+
+- (instancetype)initWithURL:(NSURL *)url;
 
 @end
 

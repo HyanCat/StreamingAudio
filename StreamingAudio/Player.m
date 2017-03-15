@@ -88,15 +88,12 @@
 
 - (void)play:(NSURL *)url
 {
-    [self.cache cacheAudioWithURL:url finished:^(AudioCacheUnit * _Nonnull unit) {
-        NSLog(@"cached... %@", unit.location);
-    }];
     if (self.state == PlayerStatePlaying && url && [url isEqual:self.current]) {
         return;
     }
     self.state = PlayerStatePlaying;
 
-    [self.audioPlayer playDataSource:__dataSourceFromURL(url)
+    [self.audioPlayer playDataSource:[self __dataSourceFromURL:url]
                      withQueueItemID:self.queueID];
 
     self.current = url;
@@ -106,7 +103,7 @@
 {
     self.state = PlayerStatePlaying;
 
-    [self.audioPlayer queueDataSource:__dataSourceFromURL(url)
+    [self.audioPlayer queueDataSource:[self __dataSourceFromURL:url]
                       withQueueItemId:self.queueID];
 }
 
@@ -184,17 +181,21 @@
 
 #pragma mark - Private
 
-static STKDataSource* __dataSourceFromURL(NSURL *url)
+- (STKDataSource *)__dataSourceFromURL:(NSURL *)url
 {
-    STKDataSource* retval = nil;
-
+    __kindof STKDataSource *retval;
     if ([url.scheme isEqualToString:@"file"])
     {
         retval = [[STKLocalFileDataSource alloc] initWithFilePath:url.path];
     }
     else if ([url.scheme caseInsensitiveCompare:@"http"] == NSOrderedSame || [url.scheme caseInsensitiveCompare:@"https"] == NSOrderedSame)
     {
-        retval = [[DiskBufferingDataSource alloc] initWithHTTPDataSource:[[STKHTTPDataSource alloc] initWithURL:url]];
+        DiskBufferingDataSource *dataSource = [[DiskBufferingDataSource alloc] initWithURL:url];
+        dataSource.enabledCache = self.enableCache;
+#if DEBUG
+        dataSource.enabledDiskBuffer = YES;
+#endif
+        retval = dataSource;
     }
 
     return retval;

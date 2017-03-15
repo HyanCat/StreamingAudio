@@ -42,6 +42,7 @@ typedef NS_ENUM(NSUInteger, PlayerMode) {
 @property (nonatomic, assign, readonly) PlayerState state;
 @property (nonatomic, assign, readonly) PlayerMode mode;
 
+@property (nonatomic, assign) BOOL enableCache;
 @property (nonatomic, copy, nullable, readonly) NSURL *current;
 
 - (void)play:(NSURL *)url;

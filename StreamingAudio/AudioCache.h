@@ -10,6 +10,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+FOUNDATION_EXTERN NSString *const kAudioCacheFileExtension;
+
 @class AudioCacheUnit;
 
 typedef void(^AudioCacheCompletion)(AudioCacheUnit *unit);
@@ -28,6 +30,7 @@ typedef void(^AudioCacheCompletion)(AudioCacheUnit *unit);
 
 @interface AudioCacheUnit : NSObject
 
+@property (nonatomic, copy) NSURL *url;
 @property (nonatomic, copy) NSURL *location;
 
 @end

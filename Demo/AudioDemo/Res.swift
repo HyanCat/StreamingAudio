@@ -17,11 +17,11 @@ struct Res {
 
     static let musics: [Audio] = [
         Audio(name: "紫川录",
-              url: URL(string: "http://picosong.com/media/songs/4dd2f031e35a1f300e28463a637d822e.mp3")!),
+              url: URL(string: "http://picosong.com/media/songs/a320e9af1a9db7ff15f0ffcc3404c4c0.mp3")!),
         Audio(name: "锦鲤抄",
-              url: URL(string: "http://picosong.com/media/songs/3ebb1d65be74c3481c16976ee0768e6c.mp3")!),
+              url: URL(string: "http://picosong.com/media/songs/0fd216fc6e6c3984dd0ba65a20d07fb6.mp3")!),
         Audio(name: "琴师",
-              url: URL(string: "http://picosong.com/media/songs/3ebb1d65be74c3481c16976ee0768e6c.mp3")!),
+              url: URL(string: "http://picosong.com/media/songs/a320e9af1a9db7ff15f0ffcc3404c4c0.mp3")!),
     ]
     static let noises: [Audio] = [
         Audio(name: "🐩叫",
