@@ -149,7 +149,6 @@ NS_ASSUME_NONNULL_END
         unit.location = file;
         [_cachedAudios setObject:unit forKey:fileName];
     }
-    __audioDirectory();
 }
 
 - (BOOL)__cacheTask:(CacheTask *)task
