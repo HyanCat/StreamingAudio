@@ -88,9 +88,6 @@
 
 - (void)play:(NSURL *)url
 {
-    if (self.state == PlayerStatePlaying && url && [url isEqual:self.current]) {
-        return;
-    }
     self.state = PlayerStatePlaying;
 
     [self.audioPlayer playDataSource:[self __dataSourceFromURL:url]
@@ -130,23 +127,6 @@
     if (self.current) {
         self.state = PlayerStatePlaying;
         [self play:self.current];
-    }
-}
-
-- (void)finished
-{
-    self.state = PlayerStateNone;
-    switch (self.mode) {
-        case PlayerModeOnce:
-            [self stop];
-            break;
-        case PlayerModeSingle:
-            [self replay];
-            break;
-        case PlayerModeLoop:
-        case PlayerModeRandom:
-        default:
-            break;
     }
 }
 

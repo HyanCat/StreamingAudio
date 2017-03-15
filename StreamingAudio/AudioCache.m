@@ -153,11 +153,12 @@ NS_ASSUME_NONNULL_END
 
 - (BOOL)__cacheTask:(CacheTask *)task
 {
+    if (!task.url) return YES;
     NSURLSession *session = [NSURLSession sharedSession];
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
     [[session downloadTaskWithURL:task.url completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (task.completion) {
+        if (task.url && task.completion) {
 
             NSString *fileName = [self __fileNameMD5:task.url];
             NSURL *newLocation = [self __moveTempFile:fileName fromLocation:location];
