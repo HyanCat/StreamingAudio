@@ -52,8 +52,6 @@ typedef NS_ENUM(NSUInteger, PlayerMode) {
 - (void)stop;
 - (void)replay;
 
-- (void)finished;
-
 - (void)appendFrequencyOutputName:(NSString *)name output:(FrequencyOutput)output;
 - (void)removeFrequencyOutputName:(NSString *)name;
 
