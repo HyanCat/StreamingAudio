@@ -46,12 +46,12 @@
 {
     self = [super init];
     if (self) {
-        {
-            STKAudioPlayerOptions options;
-            options.enableVolumeMixer = YES;
-            options.readBufferSize = 64 * 1024;
-            _audioPlayer = [[STKAudioPlayer alloc] initWithOptions:options];
-        }
+        _audioPlayer = [[STKAudioPlayer alloc] initWithOptions:(STKAudioPlayerOptions) {
+            .enableVolumeMixer = YES,
+            .readBufferSize = 64 * 1024,
+            .flushQueueOnSeek = YES,
+        }];
+        _audioPlayer.meteringEnabled = YES;
 
         _delegate = (id <STKAudioPlayerDelegate>)[[PlayerDelegate alloc] initWithPlayer:self];
         _audioPlayer.delegate = _delegate;
