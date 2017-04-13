@@ -40,7 +40,7 @@ typedef NS_ENUM(NSUInteger, PlayerMode) {
 @property (nonatomic, strong, readonly) STKAudioPlayer *audioPlayer;
 @property (nonatomic, assign) Float32 volume;
 @property (nonatomic, assign, readonly) PlayerState state;
-@property (nonatomic, assign, readonly) PlayerMode mode;
+@property (nonatomic, assign) PlayerMode mode;
 
 @property (nonatomic, assign) BOOL enableCache;
 @property (nonatomic, copy, nullable, readonly) NSURL *current;
