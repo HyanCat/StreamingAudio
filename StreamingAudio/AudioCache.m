@@ -162,7 +162,7 @@ NS_ASSUME_NONNULL_END
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
     [[session downloadTaskWithURL:task.url completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (task.url && task.completion) {
+        if (task.url && location && task.completion) {
 
             NSString *fileName = [self __fileNameMD5:task.url];
             NSURL *newLocation = [self __moveTempFile:fileName fromLocation:location];
