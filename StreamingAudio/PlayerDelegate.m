@@ -51,6 +51,9 @@
 - (void)audioPlayer:(STKAudioPlayer *)audioPlayer didFinishPlayingQueueItemId:(NSObject *)queueItemId withReason:(STKAudioPlayerStopReason)stopReason andProgress:(double)progress andDuration:(double)duration
 {
     switch (stopReason) {
+        case STKAudioPlayerStopReasonNone:
+            [self performSelector:@selector(__fixStopNone:) withObject:audioPlayer afterDelay:0.1];
+            break;
         case STKAudioPlayerStopReasonEof:
             [self __finished];
             break;
@@ -62,6 +65,13 @@
 - (void)audioPlayer:(STKAudioPlayer *)audioPlayer unexpectedError:(STKAudioPlayerErrorCode)errorCode
 {
 
+}
+
+- (void)__fixStopNone:(STKAudioPlayer *)player
+{
+    if (player.stopReason == STKAudioPlayerStopReasonEof) {
+        [self __finished];
+    }
 }
 
 - (void)__finished
